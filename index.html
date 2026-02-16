@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Management</title>
+<style>
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(135deg,#425486,#bba1e8);
+  color:#fff;
+}
+
+header,footer{
+  background:#111827;
+  text-align:center;
+  padding:12px;
+}
+.container{padding:20px}
+input{
+  padding:8px;
+  margin:5px;
+  border-radius:5px;
+  border:1px solid #ccc;
+}
+button{
+  padding:7px 12px;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+  color:#fff;
+}
+.add-btn{background:#7e4c06}
+.add-btn:hover{background:#02553b}
+.del-btn{background:#ef4444}
+.del-btn:hover{background:#dc2626}
+table{
+  width:100%;
+  margin-top:15px;
+  border-collapse:collapse;
+  background:#fff;
+  color:#000;
+}
+th{
+  background:#8c86ef;
+  color:#fff;
+}
+th,td{
+  border:1px solid #ddd;
+  padding:8px;
+  text-align:center;
+}
+footer{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  font-size:14px;
+}
+</style>
+</head>
+<body>
+<header>
+🎓 Student Management Dashboard
+</header>
+<div class="container">
+<input id="name" placeholder="Name">
+<input id="age" type="number" min="1" placeholder="Age">
+<input id="course" placeholder="Course">
+<button class="add-btn" onclick="addStudent()">Add</button>
+<table>
+<tr>
+<th>Name</th>
+<th>Age</th>
+<th>Course</th>
+<th>Action</th>
+</tr>
+<tbody id="data"></tbody>
+</table>
+</div>
+<footer>
+© 2026 Student System|Arun Rodrigus
+</footer>
+<script>
+const nameInput=document.getElementById("name");
+const ageInput=document.getElementById("age");
+const courseInput=document.getElementById("course");
+let students=JSON.parse(localStorage.getItem("students"))||[];
+function show(){
+  document.getElementById("data").innerHTML=
+  students.map((s,i)=>`
+  <tr>
+    <td>${s.name}</td>
+    <td>${s.age}</td>
+    <td>${s.course}</td>
+    <td><button class="del-btn" onclick="removeStudent(${i})">Delete</button></td>
+  </tr>`).join("");
+}
+function addStudent(){
+  let name=nameInput.value.trim();
+  let age=ageInput.value.trim();
+  let course=courseInput.value.trim();
+  if(!name||!age||!course)
+    return alert("Please fill all three fields!");
+  if(!Number.isInteger(Number(age)))
+    return alert("Age must be integer!");
+  students.push({name,age,course});
+  localStorage.setItem("students",JSON.stringify(students));
+  show();
+  nameInput.value=ageInput.value=courseInput.value="";
+}
+function removeStudent(i){
+  students.splice(i,1);
+  localStorage.setItem("students",JSON.stringify(students));
+  show();
+}
+show();
+</script>
+</body>
+</html>
