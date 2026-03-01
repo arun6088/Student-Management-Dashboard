@@ -15,7 +15,7 @@ header,footer{
   padding:12px;
 }
 .container{padding:20px}
-input{
+input, select{
   padding:8px;
   margin:5px;
   border-radius:5px;
@@ -65,6 +65,12 @@ footer{
 <input id="age" type="number" min="1" placeholder="Age">
 <input id="course" placeholder="Course">
 <button class="add-btn" onclick="addStudent()">Add</button>
+<br><br>
+<input id="search" placeholder="Search by Name" oninput="show()">
+<input id="minAge" type="number" min="1" placeholder="Min Age" oninput="show()">
+<select id="filterCourse" onchange="show()">
+  <option value="">All Courses</option>
+</select>
 <table>
 <tr>
 <th>Name</th>
@@ -76,41 +82,68 @@ footer{
 </table>
 </div>
 <footer>
-© 2026 Student System|Arun Rodrigus
+© 2026 Student System | Arun Rodrigus
 </footer>
 <script>
 const nameInput=document.getElementById("name");
 const ageInput=document.getElementById("age");
 const courseInput=document.getElementById("course");
+const searchInput=document.getElementById("search");
+const minAgeInput=document.getElementById("minAge");
+const filterCourse=document.getElementById("filterCourse");
 let students=JSON.parse(localStorage.getItem("students"))||[];
+
+function updateCourseFilter(){
+  let courses=[...new Set(students.map(s=>s.course))];
+  filterCourse.innerHTML='<option value="">All Courses</option>';
+  courses.forEach(c=>{
+    filterCourse.innerHTML+=`<option value="${c}">${c}</option>`;
+  });
+}
 function show(){
+  let search=searchInput.value.toLowerCase();
+  let minAge=minAgeInput.value;
+  let selectedCourse=filterCourse.value;
+
+  let filtered=students.filter(s=>{
+    return (
+      s.name.toLowerCase().includes(search) &&
+      (!minAge || Number(s.age)>=Number(minAge)) &&
+      (!selectedCourse || s.course===selectedCourse)
+    );
+  });
   document.getElementById("data").innerHTML=
-  students.map((s,i)=>`
+  filtered.map((s,i)=>`
   <tr>
     <td>${s.name}</td>
     <td>${s.age}</td>
     <td>${s.course}</td>
-    <td><button class="del-btn" onclick="removeStudent(${i})">Delete</button></td>
+    <td><button class="del-btn" onclick="removeStudent(${students.indexOf(s)})">Delete</button></td>
   </tr>`).join("");
 }
 function addStudent(){
   let name=nameInput.value.trim();
   let age=ageInput.value.trim();
   let course=courseInput.value.trim();
+
   if(!name||!age||!course)
     return alert("Please fill all three fields!");
   if(!Number.isInteger(Number(age)))
     return alert("Age must be integer!");
+
   students.push({name,age,course});
   localStorage.setItem("students",JSON.stringify(students));
-  show();
   nameInput.value=ageInput.value=courseInput.value="";
+  updateCourseFilter();
+  show();
 }
 function removeStudent(i){
   students.splice(i,1);
   localStorage.setItem("students",JSON.stringify(students));
+  updateCourseFilter();
   show();
 }
+updateCourseFilter();
 show();
 </script>
 </body>
